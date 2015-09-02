@@ -4,7 +4,7 @@ function _update_g_package() {
   local package=$1
   if [ $(npm view ${package} version) != $(${package} --version) ]; then
     npm i -g ${package}
-    echo "${package} updated to $(${package} --version)."
+    client_message "${package} updated to $(${package} --version)."
   fi
 }
 
@@ -19,7 +19,7 @@ function update_nodejs {
   local NODE_URL=https://nodejs.org/dist/${LATEST}/node-${LATEST}-linux-x64.tar.gz
 
   if [ "$LATEST" = "v" ]; then
-    echo "Could not retrieve node version information from $VERSION_URL"
+    client_message "Could not retrieve node version information from $VERSION_URL"
     return 1
   fi
 
@@ -41,13 +41,13 @@ function update_nodejs {
     rm ${OPENSHIFT_DATA_DIR}tmp.tgz
 
     # Output result
-    echo "Node.js updated to $(node --version) with npm $(npm --version)."
+    client_message "Node.js updated to $(node --version) with npm $(npm --version)."
   fi
 
   # Install pm2
   if [ ! type pm2 2> /dev/null ]; then
     npm i -g pm2
-    echo "PM2 installed $(pm2 --version)"
+    client_message "PM2 installed $(pm2 --version)"
   fi
 
   # Update global packages if necessary
