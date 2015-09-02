@@ -1,5 +1,13 @@
 #!/bin/bash
 
+function _update_g_package() {
+  local package=$1
+  if [ $(npm view ${package} version) != $(${package} --version) ]; then
+    npm i -g ${package}
+    echo "${package} updated to $(${package} --version)."
+  fi
+}
+
 function update_nodejs {
   if [ -f "$OPENSHIFT_REPO_DIR/.openshift/NODE_VERSION_URL" ]; then
     local VERSION_URL=$(cat $OPENSHIFT_REPO_DIR/.openshift/NODE_VERSION_URL)
@@ -36,9 +44,13 @@ function update_nodejs {
     echo "Node.js updated to $(node --version) with npm $(npm --version)."
   fi
 
-  # Update global npm if necessary
-  if [ $(npm view npm version) != $(npm --version) ]; then
-    npm i -g npm
-    echo "Npm updated to $(npm --version)."
+  # Install pm2
+  if [ type pm2 2> /dev/null ]; then
+    npm i -g pm2
+    echo "PM2 installed $(pm2 --version)"
   fi
+
+  # Update global packages if necessary
+  _update_g_package npm
+  _update_g_package pm2
 }

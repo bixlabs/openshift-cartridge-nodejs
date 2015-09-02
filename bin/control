@@ -4,7 +4,7 @@ source $OPENSHIFT_CARTRIDGE_SDK_BASH
 source $HOME/nodejs/lib/util
 
 function is_running() {
-  if [ ! -z "$(ps -ef | grep 'node --harmony .' | grep -v grep)" ]; then
+  if [ ! -z "$(ps -ef | grep 'node' | grep -v grep)" ]; then
     return 0
   else
     return 1
@@ -15,6 +15,26 @@ function pre-repo-archive() {
   if [ -d ${OPENSHIFT_REPO_DIR}node_modules ]; then
     mv -f ${OPENSHIFT_REPO_DIR}node_modules ${TMP}
   fi
+}
+
+function pm2_start() {
+  local startCmd=""
+  local files=$(shopt -s nullglob;shopt -s dotglob;echo ${OPENSHIFT_REPO_DIR}.openshift/pm2/*.json)
+
+  if [ -f "${OPENSHIFT_REPO_DIR}.openshift/markers/hot_deploy" ]; then
+    startCmd="startOrReload"
+  else
+    startCmd="startOrRestart"
+  fi
+
+  if [ ${#files[@]} -gt 0 ]; then
+    client_message "No .json files found"
+  fi
+
+  for json in ${OPENSHIFT_REPO_DIR}.openshift/pm2/*.json
+  do
+    pm2 startOrReload "${json} found will be readed"
+  done
 }
 
 function build() {
@@ -28,49 +48,15 @@ function build() {
   npm i
   cd ${INIT_DIR}
   client_result 'Node.js modules installed.'
+  pm2_start
 }
 
 function start() {
-  local INIT_DIR=`pwd`
-  cd ${OPENSHIFT_REPO_DIR}
-  if is_running; then
-    client_result 'Application is already running.'
-  else
-    client_message 'Starting Node.js application...'
-    nohup node --harmony . |& /usr/bin/logshifter -tag nodejs &
-    i=0
-    while ! is_running && [ $i -lt 60 ]; do
-      sleep 1
-      i=$(($i + 1))
-    done
-    if is_running; then
-      client_result 'Node.js application started.'
-    else
-      client_result 'Warning! Could not start Node.js application!'
-      exit 1
-    fi
-  fi
-  cd ${INIT_DIR}
+  pm2_start
 }
 
 function stop() {
-  if ! is_running; then
-    client_result 'Application is already stopped.'
-  else
-    client_message 'Stopping Node.js application...'
-    kill $(ps -ef | grep 'node --harmony .' | grep -v grep | awk '{ print $2 }') > /dev/null 2>&1
-    i=0
-    while is_running && [ $i -lt 60 ]; do
-      sleep 1
-      i=$(($i + 1))
-    done
-    if is_running; then
-      client_result 'Warning! Could not stop Node.js application!'
-      exit 1
-    else
-      client_result 'Node.js application stopped.'
-    fi
-  fi
+  pm2 kill
 }
 
 function restart() {
