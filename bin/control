@@ -17,6 +17,15 @@ function pre-repo-archive() {
   fi
 }
 
+function pm2_link() {
+  if [ ! -z "${PM2_PUBLIC_KEY}" ] && [ ! -z "${PM2_SECREY_KEY}" ]; then
+    if [ -z $(pm2 status | grep ${PM2_PUBLIC_KEY}) ]; then
+      client_message "Linking keymetrics bucket"
+      pm2 link ${PM2_SECREY_KEY} ${PM2_PUBLIC_KEY}
+    fi
+  fi
+}
+
 function pm2_start() {
   local startCmd=""
   local initialDir=$(pwd)
@@ -34,6 +43,8 @@ function pm2_start() {
   else
     client_message "No .json files found"
   fi
+
+  pm2_link
 
   cd ${initialDir}
 }
