@@ -16,4 +16,6 @@ echo ${TMP}                                    > env/npm_config_tmp
 
 update_nodejs
 
+npm i -g pm2
+
 client_result "Node.js $(node --version) and NPM $(npm --version) installed."
