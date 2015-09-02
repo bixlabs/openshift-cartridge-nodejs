@@ -1,0 +1,13 @@
+{
+  "apps": [
+    {
+      "name": "template-app",
+      "script": "app.js",
+      "watch": false,
+      "node_args": "--harmony",
+      "merge_logs": true,
+      "exec_mode": "cluster_mode",
+      "instances": 2
+    }
+  ]
+}
