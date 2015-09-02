@@ -45,7 +45,7 @@ function update_nodejs {
   fi
 
   # Install pm2
-  if [ type pm2 2> /dev/null ]; then
+  if [ ! type pm2 2> /dev/null ]; then
     npm i -g pm2
     echo "PM2 installed $(pm2 --version)"
   fi
