@@ -47,7 +47,8 @@ function update_nodejs {
   # Install pm2
   if ! hash pm2 2> /dev/null; then
     npm i -g pm2
-    client_message "PM2 installed $(pm2 --version)"
+    client_message "PM2 installed"
+    pm2 --version
   fi
 
   # Update global packages if necessary

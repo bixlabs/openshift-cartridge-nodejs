@@ -19,7 +19,6 @@ function pre-repo-archive() {
 
 function pm2_start() {
   local startCmd=""
-  local files=$(shopt -s nullglob;shopt -s dotglob;echo ${OPENSHIFT_REPO_DIR}.openshift/pm2/*.json)
 
   if [ -f "${OPENSHIFT_REPO_DIR}.openshift/markers/hot_deploy" ]; then
     startCmd="startOrReload"
@@ -27,14 +26,11 @@ function pm2_start() {
     startCmd="startOrRestart"
   fi
 
-  if [ ${#files[@]} -gt 0 ]; then
+  if [ -f ${OPENSHIFT_REPO_DIR}.openshift/pm2/applications.json ]; then
+    pm2 startOrReload ${OPENSHIFT_REPO_DIR}.openshift/pm2/applications.json
+  else
     client_message "No .json files found"
   fi
-
-  for json in ${OPENSHIFT_REPO_DIR}.openshift/pm2/*.json
-  do
-    pm2 startOrReload "${json} found will be readed"
-  done
 }
 
 function build() {
