@@ -50,7 +50,6 @@ function pm2_start() {
 }
 
 function build() {
-  update_nodejs
   local INIT_DIR=`pwd`
   cd ${OPENSHIFT_REPO_DIR}
   if [ -d ${TMP}node_modules ]; then
